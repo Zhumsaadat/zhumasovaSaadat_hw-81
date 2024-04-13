@@ -31,31 +31,33 @@ shortUrlRouter.post('/', async (req, res, next) => {
 
     try {
         const { originalUrl } = req.body;
-        console.log(originalUrl)
         if (!originalUrl) {
             return res.status(422).send({error: 'Field is required'})
         }
         const randomUrl = () => {
             const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-            let uniqueId = '';
-            const idLength = Math.floor(Math.random() * 2) + 6;
+            let uniqueUrl = '';
+            const urlLength = Math.floor(Math.random() * 2) + 6;
 
-            for (let i = 0; i < idLength; i++) {
-                const randomIndex = Math.floor(Math.random() * characters.length);
-                uniqueId += characters[randomIndex];
+            for (let i = 0; i < urlLength; i++) {
+                const randomUrl = Math.floor(Math.random() * characters.length);
+                uniqueUrl += characters[randomUrl];
             }
-            return uniqueId
+            return uniqueUrl
+        };
+        let shortRandomUrl = randomUrl();
+
+        while (await ShortUrl.findOne({shortRandomUrl})){
+            shortRandomUrl = randomUrl();
         }
 
-
         const shortUrlData = {
-            shortUrl: randomUrl(),
+            shortUrl: shortRandomUrl,
             originalUrl: originalUrl,
         };
 
         const shortUrl = new ShortUrl(shortUrlData);
         await shortUrl.save();
-        console.log(shortUrl)
 
         return res.send(shortUrl);
     } catch (e) {
